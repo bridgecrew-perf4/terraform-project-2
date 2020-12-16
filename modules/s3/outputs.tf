@@ -1,7 +1,15 @@
-output "s3_bucket" {
-  value = aws_s3_bucket.bucket.bucket
+output "public_bucket_arn" {
+  value = aws_s3_bucket.public_bucket.arn
 }
 
-output "s3_bucket_arn" {
-  value = aws_s3_bucket.bucket.arn
+output "private_bucket_arn" {
+  value = aws_s3_bucket.private_bucket.arn
+}
+
+output "public_bucket" {
+  value = aws_s3_bucket.public_bucket
+}
+
+output "private_bucket" {
+  value = aws_s3_bucket.private_bucket
 }

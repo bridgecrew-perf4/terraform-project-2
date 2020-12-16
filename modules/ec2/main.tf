@@ -1,7 +1,8 @@
 variable "stack_name" {}
 variable "public_subnet_id" {}
 variable "vpc_id" {}
-variable "s3_bucket_arn" {}
+variable "private_bucket_arn" {}
+variable "public_bucket_arn" {}
 
 variable "public_ips" { type = map(any) }
 
@@ -16,12 +17,17 @@ data "aws_eip" "ec2_ip" {
 
 data "aws_region" "current" {}
 
-data "aws_ami" "ubuntu" {
+data "aws_ami" "azm_linux" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
+    values = ["packer-keyedin-*"]
+  }
+
+  filter {
+    name = "tag:Name"
+    values = ["Packer-Keyedin-AMI"]
   }
 
   filter {
@@ -29,7 +35,7 @@ data "aws_ami" "ubuntu" {
     values = ["hvm"]
   }
 
-  owners = ["099720109477"] # Canonical
+  owners = ["079893911216"] # Canonical
 }
 
 resource "aws_eip_association" "proxy_eip" {
@@ -39,16 +45,18 @@ resource "aws_eip_association" "proxy_eip" {
 }
 
 resource "aws_instance" "vm" {
-  ami                         = data.aws_ami.ubuntu.id
+  ami                         = data.aws_ami.azm_linux.id
   instance_type               = "t2.medium"
   associate_public_ip_address = true
   key_name                    = aws_key_pair.generated.key_name
   vpc_security_group_ids      = [aws_security_group.ec2_security_group.id]
   subnet_id                   = var.public_subnet_id
   iam_instance_profile        = aws_iam_instance_profile.vm_profile.name
+  user_data                   = file("${path.module}/user_data.sh")
 
   tags = {
     Name = var.stack_name
+    Terraform = true
   }
 }
 
@@ -93,6 +101,7 @@ resource "aws_security_group" "ec2_security_group" {
 
   tags = {
     Name = var.stack_name
+    Terraform = true
   }
 }
 
@@ -142,10 +151,34 @@ resource "aws_iam_role_policy" "ec2_role_policy" {
       {
          "Effect": "Allow",
          "Action": [
+            "s3:ListBucketVersions",
+            "s3:ListBucket",
+            "s3:ListAllMyBuckets"
+         ],
+         "Resource": [
+            "arn:aws:s3:::keyedin-private",
+            "arn:aws:s3:::keyedin-public"
+         ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:DeleteObject"
+        ],
+        "Resource": [
+          "arn:aws:s3:::keyedin-private/*",
+          "arn:aws:s3:::keyedin-public/*"
+        ]
+      },
+      {
+         "Effect": "Allow",
+         "Action": [
             "s3:*"
          ],
          "Resource": [
-            "${var.s3_bucket_arn}"
+            "arn:aws:s3:::aws-codedeploy-${data.aws_region.current.name}/*"
          ]
       }
   ]
@@ -154,8 +187,8 @@ EOF
 }
 
 locals {
-  public_key_filename  = "./key-${terraform.workspace}.pub"
-  private_key_filename = "./key-${terraform.workspace}"
+  public_key_filename  = "./ssh/key-keyedin-${terraform.workspace}.pub"
+  private_key_filename = "./ssh/key-keyedin-${terraform.workspace}"
 }
 
 resource "tls_private_key" "default" {

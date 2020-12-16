@@ -10,10 +10,6 @@ variable "aws_profile" {
   type = string
 }
 
-variable "state_bucket" {
-  type = string
-}
-
 variable "public_ips" {
   type = map(any)
 }
@@ -53,10 +49,19 @@ module "ec2" {
   vpc_id           = module.vpc.vpc_id
   public_subnet_id = module.vpc.public_subnet_ids[0]
   public_ips       = var.public_ips
-  s3_bucket_arn    = module.s3.s3_bucket_arn
+  public_bucket_arn = module.s3.public_bucket_arn
+  private_bucket_arn = module.s3.private_bucket_arn
 }
 
 module "s3" {
   source     = "./modules/s3"
   stack_name = var.stack_name
+}
+
+// database
+module "aurora" {
+  source     = "./modules/aurora"
+  stack_name = var.stack_name
+  subnet_ids = module.vpc.public_subnet_ids
+  vpc_id     = module.vpc.vpc_id
 }

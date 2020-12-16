@@ -16,6 +16,7 @@ resource "aws_vpc" "vpc" {
 
   tags = {
     Name = var.stack_name
+    Terraform = true
   }
 }
 
@@ -24,6 +25,7 @@ resource "aws_internet_gateway" "internet_gateway" {
 
   tags = {
     Name = var.stack_name
+    Terraform = true
   }
 }
 
@@ -35,7 +37,8 @@ resource "aws_subnet" "public_subnets" {
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
-    Name = "${var.stack_name}_public_${local.nb_azs}"
+    Name = "${var.stack_name}_public_${count.index}"
+    Terraform = true
   }
 }
 
@@ -49,6 +52,7 @@ resource "aws_route_table" "public_routetable" {
 
   tags = {
     Name = var.stack_name
+    Terraform = true
   }
 }
 
@@ -64,6 +68,7 @@ resource "aws_eip" "eips" {
 
   tags = {
     Name = var.stack_name
+    Terraform = true
   }
 }
 
@@ -76,6 +81,7 @@ resource "aws_nat_gateway" "nat_gateway" {
 
   tags = {
     Name = var.stack_name
+    Terraform = true
   }
 }
 
@@ -86,7 +92,8 @@ resource "aws_subnet" "private_subnets" {
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
-    Name = "${var.stack_name}_private_${local.nb_azs}"
+    Name = "${var.stack_name}_private_${count.index}"
+    Terraform = true
   }
 }
 
@@ -95,6 +102,7 @@ resource "aws_route_table" "private_routetable" {
 
   tags = {
     Name = var.stack_name
+    Terraform = true
   }
 }
 

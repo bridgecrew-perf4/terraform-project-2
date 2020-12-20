@@ -1,7 +1,7 @@
 variable "stack_name" {}
 
 variable "subnet_ids" {
-  type = list
+  type = list(any)
 }
 
 variable "vpc_id" {}
@@ -33,7 +33,7 @@ resource "aws_db_subnet_group" "aurora_subnet_group" {
   subnet_ids = var.subnet_ids
 
   tags = {
-    Name = var.stack_name
+    Name      = var.stack_name
     Terraform = true
   }
 }
@@ -49,17 +49,18 @@ resource "aws_security_group" "db_security_group" {
   }
 
   tags = {
-    Name = var.stack_name
+    Name      = var.stack_name
     Terraform = true
   }
 }
 
 resource "aws_rds_cluster" "aurora_cluster" {
-  engine                       = "aurora-mysql"
-  engine_version               = "5.7.12"
-  database_name                = "${var.stack_name}_db"
-  master_username              = "aurora"
-  master_password              = random_string.rds_master_password.result
+  engine          = "aurora-mysql"
+  engine_version  = "5.7"
+  database_name   = "${var.stack_name}_db"
+  master_username = "aurora"
+  # master_password              = random_string.rds_master_password.result
+  master_password              = "keyedin-default-password"
   backup_retention_period      = 14
   preferred_backup_window      = "02:00-03:00"
   preferred_maintenance_window = "wed:03:00-wed:04:00"
@@ -71,7 +72,7 @@ resource "aws_rds_cluster" "aurora_cluster" {
   ]
 
   tags = {
-    Name = var.stack_name
+    Name      = var.stack_name
     Terraform = true
   }
 }
@@ -86,7 +87,7 @@ resource "aws_rds_cluster_instance" "aurora_cluster_instance" {
   engine_version       = "5.7.12"
 
   tags = {
-    Name = var.stack_name
+    Name      = var.stack_name
     Terraform = true
   }
 }

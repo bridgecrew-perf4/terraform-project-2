@@ -7,17 +7,17 @@ resource "aws_s3_bucket" "public_bucket" {
   acl           = "public-read"
 
   tags = {
-    Name = var.stack_name
+    Name      = var.stack_name
     Terraform = true
   }
 }
 
 resource "aws_s3_bucket" "private_bucket" {
   bucket_prefix = "${replace(var.stack_name, "/[^a-z0-9.]+/", "-")}-private"
-  acl = "private"
+  acl           = "private"
 
   tags = {
-    Name = var.stack_name
+    Name      = var.stack_name
     Terraform = true
   }
 }

@@ -1,6 +1,6 @@
 {
     "variables": {
-        "stack_name": "keyedinapp",
+        "stack_name": "keyedin",
         "region": "eu-west-2",
         "profile": "keyedin"
     },
@@ -12,6 +12,7 @@
             "ami_description": "AMI for hosting Keyedin API and contains docker",
             "profile": "{{user `profile` }}",
             "region": "{{user `region` }}",
+            "force_delete_snapshot": true,
             "source_ami_filter": {
                 "filters": {
                     "name": "amzn2-ami-hvm-*-x86_64-gp2",

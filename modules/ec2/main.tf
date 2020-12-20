@@ -26,7 +26,7 @@ data "aws_ami" "azm_linux" {
   }
 
   filter {
-    name = "tag:Name"
+    name   = "tag:Name"
     values = ["Packer-Keyedin-AMI"]
   }
 
@@ -55,7 +55,7 @@ resource "aws_instance" "vm" {
   user_data                   = file("${path.module}/user_data.sh")
 
   tags = {
-    Name = var.stack_name
+    Name      = var.stack_name
     Terraform = true
   }
 }
@@ -100,7 +100,7 @@ resource "aws_security_group" "ec2_security_group" {
   }
 
   tags = {
-    Name = var.stack_name
+    Name      = var.stack_name
     Terraform = true
   }
 }
@@ -151,9 +151,7 @@ resource "aws_iam_role_policy" "ec2_role_policy" {
       {
          "Effect": "Allow",
          "Action": [
-            "s3:ListBucketVersions",
-            "s3:ListBucket",
-            "s3:ListAllMyBuckets"
+            "s3:ListBucket"
          ],
          "Resource": [
             "arn:aws:s3:::keyedin-private",
@@ -165,7 +163,12 @@ resource "aws_iam_role_policy" "ec2_role_policy" {
         "Action": [
           "s3:PutObject",
           "s3:GetObject",
-          "s3:DeleteObject"
+          "s3:DeleteObject",
+          "s3:Put*",
+          "s3:Get*",
+          "s3:List*",
+          "s3:AbortMultipartUpload"
+
         ],
         "Resource": [
           "arn:aws:s3:::keyedin-private/*",
@@ -175,11 +178,36 @@ resource "aws_iam_role_policy" "ec2_role_policy" {
       {
          "Effect": "Allow",
          "Action": [
-            "s3:*"
+            "s3:Get*",
+            "s3:List*"
          ],
          "Resource": [
             "arn:aws:s3:::aws-codedeploy-${data.aws_region.current.name}/*"
          ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+            "ssm:DescribeAssociation",
+            "ssm:GetDocument",
+            "ssm:ListAssociations",
+            "ssm:UpdateAssociationStatus",
+            "ssm:UpdateInstanceInformation"
+            "ssm:GetParameters"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+            "ec2messages:AcknowledgeMessage",
+            "ec2messages:DeleteMessage",
+            "ec2messages:FailMessage",
+            "ec2messages:GetEndpoint",
+            "ec2messages:GetMessages",
+            "ec2messages:SendReply"
+        ],
+        "Resource": "*"
       }
   ]
 }

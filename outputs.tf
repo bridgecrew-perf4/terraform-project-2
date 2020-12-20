@@ -11,7 +11,7 @@ output "aurora_reader_endpoint" {
 }
 
 output "aurora_master_password" {
-  value = module.aurora.rds_master_password
+  value     = module.aurora.rds_master_password
   sensitive = true
 }
 
@@ -49,4 +49,20 @@ output "public_bucket" {
 
 output "private_bucket" {
   value = module.s3.private_bucket.arn
+}
+
+output "codedeploy_app" {
+  value = module.codedeploy.codedeploy_app_name
+}
+
+output "codedeploy_app_deployment_group" {
+  value = module.codedeploy.codedeploy_deployment_group
+}
+
+output "ecr_backend_repo" {
+  value = module.ecr.backend_repo_arn
+}
+
+output "ecr_nginx_repo" {
+  value = module.ecr.nginx_repo_arn
 }

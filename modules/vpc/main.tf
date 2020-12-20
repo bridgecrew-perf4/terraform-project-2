@@ -15,7 +15,7 @@ resource "aws_vpc" "vpc" {
   cidr_block = "10.0.0.0/16"
 
   tags = {
-    Name = var.stack_name
+    Name      = var.stack_name
     Terraform = true
   }
 }
@@ -24,7 +24,7 @@ resource "aws_internet_gateway" "internet_gateway" {
   vpc_id = aws_vpc.vpc.id
 
   tags = {
-    Name = var.stack_name
+    Name      = var.stack_name
     Terraform = true
   }
 }
@@ -37,7 +37,7 @@ resource "aws_subnet" "public_subnets" {
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
-    Name = "${var.stack_name}_public_${count.index}"
+    Name      = "${var.stack_name}_public_${count.index}"
     Terraform = true
   }
 }
@@ -51,7 +51,7 @@ resource "aws_route_table" "public_routetable" {
   }
 
   tags = {
-    Name = var.stack_name
+    Name      = "${var.stack_name} Public"
     Terraform = true
   }
 }
@@ -67,7 +67,7 @@ resource "aws_eip" "eips" {
   vpc = true
 
   tags = {
-    Name = var.stack_name
+    Name      = var.stack_name
     Terraform = true
   }
 }
@@ -80,7 +80,7 @@ resource "aws_nat_gateway" "nat_gateway" {
   depends_on = [aws_internet_gateway.internet_gateway]
 
   tags = {
-    Name = var.stack_name
+    Name      = var.stack_name
     Terraform = true
   }
 }
@@ -92,7 +92,7 @@ resource "aws_subnet" "private_subnets" {
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
-    Name = "${var.stack_name}_private_${count.index}"
+    Name      = "${var.stack_name}_private_${count.index}"
     Terraform = true
   }
 }
@@ -101,7 +101,7 @@ resource "aws_route_table" "private_routetable" {
   vpc_id = aws_vpc.vpc.id
 
   tags = {
-    Name = var.stack_name
+    Name      = "${var.stack_name} Private"
     Terraform = true
   }
 }

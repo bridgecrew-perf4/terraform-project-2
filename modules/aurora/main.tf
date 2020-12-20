@@ -84,7 +84,7 @@ resource "aws_rds_cluster_instance" "aurora_cluster_instance" {
   db_subnet_group_name = aws_db_subnet_group.aurora_subnet_group.name
   publicly_accessible  = false
   engine               = "aurora-mysql"
-  engine_version       = "5.7.12"
+  engine_version       = "5.7"
 
   tags = {
     Name      = var.stack_name

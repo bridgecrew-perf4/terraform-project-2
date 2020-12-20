@@ -7,7 +7,6 @@ stack_name = "keyedin"
 
 
 # Optional Elastic IPs you want to use
-# public_ips = {
-#   production = ""
-#   default    = ""
-# }
+public_ips = {
+  production = ""
+}

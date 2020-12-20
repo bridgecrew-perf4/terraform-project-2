@@ -55,6 +55,11 @@ resource "aws_iam_policy" "keyedin_codedeploy_policy" {
         "tag:GetResources"
       ],
       "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "sns:Publish",
+      "Resource": "*"
     }
   ]
 }

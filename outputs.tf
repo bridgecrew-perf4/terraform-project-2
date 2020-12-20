@@ -66,3 +66,7 @@ output "ecr_backend_repo" {
 output "ecr_nginx_repo" {
   value = module.ecr.nginx_repo_arn
 }
+
+output "elb_arn" {
+  value = module.elb.elb_arn
+}

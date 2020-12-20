@@ -40,7 +40,6 @@ terraform {
 module "vpc" {
   source        = "./modules/vpc"
   stack_name    = var.stack_name
-  b_nat_gateway = true
 }
 
 // vm
@@ -75,4 +74,15 @@ module "codedeploy" {
 module "ecr" {
   source     = "./modules/ecr"
   stack_name = var.stack_name
+}
+
+module "elb" {
+  source = "./modules/elb"
+  stack_name = var.stack_name
+  subnet_ids = module.vpc.public_subnet_ids
+  ec2_instance_ids = [module.ec2.vm_id]
+  security_groups = [
+    module.vpc.vpc_sg,
+    module.ec2.ec2_sg
+  ]
 }

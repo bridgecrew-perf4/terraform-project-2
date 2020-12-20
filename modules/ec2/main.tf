@@ -192,7 +192,7 @@ resource "aws_iam_role_policy" "ec2_role_policy" {
             "ssm:GetDocument",
             "ssm:ListAssociations",
             "ssm:UpdateAssociationStatus",
-            "ssm:UpdateInstanceInformation"
+            "ssm:UpdateInstanceInformation",
             "ssm:GetParameters"
         ],
         "Resource": "*"
@@ -206,6 +206,13 @@ resource "aws_iam_role_policy" "ec2_role_policy" {
             "ec2messages:GetEndpoint",
             "ec2messages:GetMessages",
             "ec2messages:SendReply"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ecr:*"
         ],
         "Resource": "*"
       }

@@ -1,8 +1,6 @@
 variable "stack_name" {}
 variable "public_subnet_id" {}
 variable "vpc_id" {}
-variable "private_bucket_arn" {}
-variable "public_bucket_arn" {}
 
 variable "public_ips" { type = map(any) }
 
@@ -35,7 +33,7 @@ data "aws_ami" "azm_linux" {
     values = ["hvm"]
   }
 
-  owners = ["079893911216"] # Canonical
+  owners = ["self"] # Canonical
 }
 
 resource "aws_eip_association" "proxy_eip" {
@@ -213,6 +211,21 @@ resource "aws_iam_role_policy" "ec2_role_policy" {
         "Effect": "Allow",
         "Action": [
           "ecr:*"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "elasticloadbalancing:Describe*",
+          "elasticloadbalancing:DeregisterTargets",
+          "elasticloadbalancing:RegisterTargets",
+          "autoscaling:Describe*",
+          "autoscaling:EnterStandby",
+          "autoscaling:ExitStandby",
+          "autoscaling:UpdateAutoScalingGroup",
+          "autoscaling:SuspendProcesses",
+          "autoscaling:ResumeProcesses"
         ],
         "Resource": "*"
       }

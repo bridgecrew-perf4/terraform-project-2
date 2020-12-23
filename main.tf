@@ -38,19 +38,17 @@ terraform {
 
 // VPC
 module "vpc" {
-  source        = "./modules/vpc"
-  stack_name    = var.stack_name
+  source     = "./modules/vpc"
+  stack_name = var.stack_name
 }
 
 // vm
 module "ec2" {
-  source             = "./modules/ec2"
-  stack_name         = var.stack_name
-  vpc_id             = module.vpc.vpc_id
-  public_subnet_id   = module.vpc.public_subnet_ids[0]
-  public_ips         = var.public_ips
-  public_bucket_arn  = module.s3.public_bucket_arn
-  private_bucket_arn = module.s3.private_bucket_arn
+  source           = "./modules/ec2"
+  stack_name       = var.stack_name
+  vpc_id           = module.vpc.vpc_id
+  public_subnet_id = module.vpc.public_subnet_ids[0]
+  public_ips       = var.public_ips
 }
 
 module "s3" {
@@ -77,12 +75,26 @@ module "ecr" {
 }
 
 module "elb" {
-  source = "./modules/elb"
-  stack_name = var.stack_name
-  subnet_ids = module.vpc.public_subnet_ids
+  source           = "./modules/elb"
+  stack_name       = var.stack_name
+  subnet_ids       = module.vpc.public_subnet_ids
   ec2_instance_ids = [module.ec2.vm_id]
+  vpc_id           = module.vpc.vpc_id
   security_groups = [
     module.vpc.vpc_sg,
     module.ec2.ec2_sg
   ]
+}
+
+module "bastion" {
+  source        = "./modules/bastion"
+  stack_name    = var.stack_name
+  subnet_id     = module.vpc.public_subnet_ids[1]
+  vpc_id        = module.vpc.vpc_id
+  allowed_hosts = module.vpc.vpc_cidr_block
+}
+
+module "cloudwatch" {
+  source     = "./modules/cloudwatch"
+  stack_name = var.stack_name
 }

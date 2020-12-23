@@ -47,10 +47,6 @@ output "public_bucket" {
   value = module.s3.public_bucket.arn
 }
 
-output "private_bucket" {
-  value = module.s3.private_bucket.arn
-}
-
 output "codedeploy_app" {
   value = module.codedeploy.codedeploy_app_name
 }

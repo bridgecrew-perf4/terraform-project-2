@@ -23,7 +23,7 @@ EOF
 }
 
 resource "aws_iam_policy" "keyedin_codedeploy_policy" {
-  name = "${title(var.stack_name)}CodeDeployPolicy"
+  name   = "${title(var.stack_name)}CodeDeployPolicy"
   policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -68,7 +68,7 @@ EOF
 
 
 resource "aws_iam_role_policy_attachment" "keyedin_codedeploy_policy" {
-  role   = aws_iam_role.keyed_app_deploy_role.name
+  role       = aws_iam_role.keyed_app_deploy_role.name
   policy_arn = aws_iam_policy.keyedin_codedeploy_policy.arn
 }
 
@@ -82,7 +82,7 @@ resource "aws_codedeploy_deployment_config" "keyedin_deployment_config" {
 
   minimum_healthy_hosts {
     type  = "HOST_COUNT"
-    value = 1
+    value = 0
   }
 }
 
@@ -101,12 +101,6 @@ resource "aws_codedeploy_deployment_group" "keyedin_deployment_group" {
       key   = "Name"
       type  = "KEY_AND_VALUE"
       value = var.stack_name
-    }
-
-    ec2_tag_filter {
-      key   = "Terraform"
-      type  = "KEY_AND_VALUE"
-      value = true
     }
   }
 

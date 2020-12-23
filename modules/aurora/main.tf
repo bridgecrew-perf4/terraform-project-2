@@ -55,6 +55,7 @@ resource "aws_security_group" "db_security_group" {
 }
 
 resource "aws_rds_cluster" "aurora_cluster" {
+  cluster_identifier = "keyedin-aurora-cluster"
   engine          = "aurora-mysql"
   engine_version  = "5.7"
   database_name   = "${var.stack_name}_db"

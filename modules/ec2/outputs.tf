@@ -13,3 +13,7 @@ output "ec2_sg" {
 output "vm_id" {
   value = aws_instance.vm.id
 }
+
+output "ec2_keyname" {
+  value = aws_key_pair.generated.key_name
+}

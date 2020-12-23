@@ -16,9 +16,9 @@ CODEDEPLOY_BIN="/opt/codedeploy-agent/bin/codedeploy-agent"
 $CODEDEPLOY_BIN stop
 sudo yum erase codedeploy-agent -y
 
-cd /home/ec2-user
+cd /tmp
 
-mkdir -p /home/ec2-user/current
+mkdir -p /home/ec2-user/app/current
 
 chown ec2-user:ec2-user -R /home/ec2-user/current
 

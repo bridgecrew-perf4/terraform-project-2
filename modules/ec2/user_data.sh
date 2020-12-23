@@ -1,19 +1,22 @@
 #!/bin/sh
 
 sudo yum -y update
-sudo yum -y install ruby
-sudo yum  -y install wget
 
-CODEDEPLOY_BIN="/opt/codedeploy-agent/bin/codedeploy-agent"
-$CODEDEPLOY_BIN stop
-sudo yum erase codedeploy-agent -y
+if [ ! -d "/home/ec2-user/app/current" ]; then
+    mkdir -p "/home/ec2-user/app/current"
+    chown ec2-user:ec2-user -R "/home/ec2-user/app"
+fi
 
-cd /home/ec2-user
+if [ -f "/tmp/install" ]; then
+    rm "/tmp/install"
+    cd /tmp
 
-wget https://aws-codedeploy-eu-west-2.s3.eu-west-2.amazonaws.com/latest/install
+    wget https://aws-codedeploy-eu-west-2.s3.eu-west-2.amazonaws.com/latest/install
 
-chmod +x ./install
+    chmod +x ./install
 
-sudo ./install auto
+    sudo ./install auto
+fi
 
 sudo service codedeploy-agent start
+sudo systemctl start docker.service

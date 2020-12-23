@@ -1,7 +1,7 @@
 variable "stack_name" {}
 
 variable "b_nat_gateway" {
-  default = "false"
+  default = false
 }
 
 data "aws_region" "current" {}
@@ -63,27 +63,27 @@ resource "aws_route_table_association" "public_rt_associations" {
 }
 
 // Private subnets
-resource "aws_eip" "eips" {
-  vpc = true
+# resource "aws_eip" "eips" {
+#   vpc = true
 
-  tags = {
-    Name      = var.stack_name
-    Terraform = true
-  }
-}
+#   tags = {
+#     Name      = var.stack_name
+#     Terraform = true
+#   }
+# }
 
-resource "aws_nat_gateway" "nat_gateway" {
-  count         = var.b_nat_gateway == true ? 1 : 0
-  allocation_id = aws_eip.eips.id
-  subnet_id     = aws_subnet.public_subnets.*.id[0]
+# resource "aws_nat_gateway" "nat_gateway" {
+#   count         = var.b_nat_gateway == true ? 1 : 0
+#   allocation_id = aws_eip.eips.id
+#   subnet_id     = aws_subnet.public_subnets.*.id[0]
 
-  depends_on = [aws_internet_gateway.internet_gateway]
+#   depends_on = [aws_internet_gateway.internet_gateway]
 
-  tags = {
-    Name      = var.stack_name
-    Terraform = true
-  }
-}
+#   tags = {
+#     Name      = var.stack_name
+#     Terraform = true
+#   }
+# }
 
 resource "aws_subnet" "private_subnets" {
   count             = local.nb_azs
@@ -106,16 +106,16 @@ resource "aws_route_table" "private_routetable" {
   }
 }
 
-resource "aws_route" "route" {
-  count                  = var.b_nat_gateway == true ? 1 : 0
-  route_table_id         = aws_route_table.private_routetable.id
-  destination_cidr_block = "0.0.0.0/0"
-  depends_on             = [aws_route_table.private_routetable]
-  nat_gateway_id         = aws_nat_gateway.nat_gateway[count.index]
-}
+# resource "aws_route" "route" {
+#   count                  = var.b_nat_gateway == true ? 1 : 0
+#   route_table_id         = aws_route_table.private_routetable.id
+#   destination_cidr_block = "0.0.0.0/0"
+#   depends_on             = [aws_route_table.private_routetable]
+#   nat_gateway_id         = aws_nat_gateway.nat_gateway[count.index]
+# }
 
-resource "aws_route_table_association" "private_rt_associations" {
-  count          = local.nb_azs
-  subnet_id      = aws_subnet.private_subnets.*.id[count.index]
-  route_table_id = aws_route_table.private_routetable.id
-}
+# resource "aws_route_table_association" "private_rt_associations" {
+#   count          = local.nb_azs
+#   subnet_id      = aws_subnet.private_subnets.*.id[count.index]
+#   route_table_id = aws_route_table.private_routetable.id
+# }

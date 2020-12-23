@@ -1,0 +1,42 @@
+{
+    "variables": {
+        "stack_name": "keyedin",
+        "region": "eu-west-2",
+        "profile": "keyedin"
+    },
+    "sensitive-variables": ["profile"],
+    "builders": [
+        {
+            "type": "amazon-ebs",
+            "ami_name": "packer-keyedin-{{timestamp}}",
+            "ami_description": "AMI for hosting Keyedin API and contains docker",
+            "profile": "{{user `profile` }}",
+            "region": "{{user `region` }}",
+            "force_delete_snapshot": true,
+            "source_ami_filter": {
+                "filters": {
+                    "name": "amzn2-ami-hvm-*-x86_64-gp2",
+                    "root-device-type": "ebs",
+                    "virtualization-type": "hvm"
+                },
+                "most_recent": true,
+                "owners": ["amazon"]
+            },
+            "ami_regions": "{{user `region` }}",
+            "ssh_username": "ec2-user",
+            "tags": {
+                "Name": "Packer-Keyedin-AMI",
+                "Environment": "Production"
+            },
+            "instance_type": "t2.medium",
+            "force_deregister": true
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "./setup.sh",
+            "pause_before": 30
+        }
+    ]
+}

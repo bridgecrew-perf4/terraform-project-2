@@ -10,9 +10,9 @@ variable "security_groups" {
   type = list(string)
 }
 
-variable "ec2_instance_ids" {
-  type = list(string)
-}
+# variable "ec2_instance_ids" {
+#   type = list(string)
+# }
 
 variable "vpc_id" {
   type = string
@@ -61,7 +61,7 @@ resource "aws_lb_target_group" "keyedin_lb_tg" {
   health_check {
     healthy_threshold   = 3
     unhealthy_threshold = 3
-    timeout             = 3
+    timeout             = 30
     port                = 80
     path                = "/"
     interval            = 60
@@ -84,11 +84,11 @@ resource "aws_lb_listener" "front_end" {
 }
 
 
-resource "aws_lb_target_group_attachment" "keyedin_lb_attachment" {
-  count            = length(var.ec2_instance_ids)
-  target_group_arn = aws_lb_target_group.keyedin_lb_tg.arn
-  target_id        = var.ec2_instance_ids[count.index]
-}
+# resource "aws_lb_target_group_attachment" "keyedin_lb_attachment" {
+#   count            = length(var.ec2_instance_ids)
+#   target_group_arn = aws_lb_target_group.keyedin_lb_tg.arn
+#   target_id        = var.ec2_instance_ids[count.index]
+# }
 
 resource "aws_lb" "keyedin_lb" {
   name               = "${var.stack_name}-elb"
@@ -104,55 +104,3 @@ resource "aws_lb" "keyedin_lb" {
     Terraform = true
   }
 }
-
-# auto-scaling
-# data "aws_ami" "azm_linux" {
-#   most_recent = true
-
-#   filter {
-#     name   = "name"
-#     values = ["packer-keyedin-*"]
-#   }
-
-#   filter {
-#     name   = "tag:Name"
-#     values = ["Packer-Keyedin-AMI"]
-#   }
-
-#   filter {
-#     name   = "virtualization-type"
-#     values = ["hvm"]
-#   }
-
-#   owners = ["079893911216"] # Canonical
-# }
-
-# resource "aws_launch_template" "webserver" {
-#   name_prefix            = "webserver-"
-#   image_id               = data.aws_ami.azm_linux.image_id
-#   instance_type          = "t2.small"
-#   key_name               = aws_key_pair.livestyled.key_name
-#   vpc_security_group_ids = [aws_security_group.webserver.id]
-
-#   tags = {
-#     "Environment" = var.environment_tag
-#   }
-# }
-
-# resource "aws_autoscaling_group" "webserver" {
-#   max_size            = 2
-#   min_size            = 2
-#   vpc_zone_identifier = data.terraform_remote_state.networking.outputs.private_subnet_ids
-
-
-#   launch_template {
-#     id      = aws_launch_template.webserver.id
-#     version = "$Latest"
-#   }
-
-#   tag {
-#     key                 = "Environment"
-#     value               = var.environment_tag
-#     propagate_at_launch = true
-#   }
-# }

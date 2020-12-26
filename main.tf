@@ -75,11 +75,11 @@ module "ecr" {
 }
 
 module "elb" {
-  source           = "./modules/elb"
-  stack_name       = var.stack_name
-  subnet_ids       = module.vpc.public_subnet_ids
-  ec2_instance_ids = [module.ec2.vm_id]
-  vpc_id           = module.vpc.vpc_id
+  source     = "./modules/elb"
+  stack_name = var.stack_name
+  subnet_ids = module.vpc.public_subnet_ids
+  # ec2_instance_ids = [module.ec2.vm_id]
+  vpc_id = module.vpc.vpc_id
   security_groups = [
     module.vpc.vpc_sg,
     module.ec2.ec2_sg
@@ -92,9 +92,22 @@ module "bastion" {
   subnet_id     = module.vpc.public_subnet_ids[1]
   vpc_id        = module.vpc.vpc_id
   allowed_hosts = module.vpc.vpc_cidr_block
+  key_name = module.ec2.ec2_keyname
 }
 
 module "cloudwatch" {
   source     = "./modules/cloudwatch"
   stack_name = var.stack_name
+}
+
+module "autoscaling" {
+  source               = "./modules/autoscaling"
+  stack_name           = var.stack_name
+  amz_ami              = module.ec2.amz_ami
+  loadbalancer_arn     = module.elb.elb_arn
+  iam_instance_profile = module.ec2.vm_profile_id
+  subnet_ids           = module.vpc.public_subnet_ids
+  ec2_sg               = module.ec2.ec2_sg
+  key_name             = module.ec2.ec2_keyname
+  alb_target_group_arn = module.elb.alb_target_group_arn
 }

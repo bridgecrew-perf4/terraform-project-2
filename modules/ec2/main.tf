@@ -8,10 +8,10 @@ locals {
   use_eip = length(lookup(var.public_ips, terraform.workspace, "")) > 0
 }
 
-data "aws_eip" "ec2_ip" {
-  count     = local.use_eip == true ? 1 : 0
-  public_ip = lookup(var.public_ips, terraform.workspace)
-}
+# data "aws_eip" "ec2_ip" {
+#   count     = local.use_eip == true ? 1 : 0
+#   public_ip = lookup(var.public_ips, terraform.workspace)
+# }
 
 data "aws_region" "current" {}
 
@@ -36,27 +36,28 @@ data "aws_ami" "azm_linux" {
   owners = ["self"] # Canonical
 }
 
-resource "aws_eip_association" "proxy_eip" {
-  count         = local.use_eip == true ? 1 : 0
-  instance_id   = aws_instance.vm.id
-  allocation_id = data.aws_eip.ec2_ip[count.index].id
-}
 
-resource "aws_instance" "vm" {
-  ami                         = data.aws_ami.azm_linux.id
-  instance_type               = "t2.medium"
-  associate_public_ip_address = true
-  key_name                    = aws_key_pair.generated.key_name
-  vpc_security_group_ids      = [aws_security_group.ec2_security_group.id]
-  subnet_id                   = var.public_subnet_id
-  iam_instance_profile        = aws_iam_instance_profile.vm_profile.name
-  user_data                   = file("${path.module}/user_data.sh")
+# resource "aws_eip_association" "proxy_eip" {
+#   count         = local.use_eip == true ? 1 : 0
+#   instance_id   = aws_instance.vm.id
+#   allocation_id = data.aws_eip.ec2_ip[count.index].id
+# }
 
-  tags = {
-    Name      = var.stack_name
-    Terraform = true
-  }
-}
+# resource "aws_instance" "vm" {
+#   ami                         = data.aws_ami.azm_linux.id
+#   instance_type               = "t2.medium"
+#   associate_public_ip_address = true
+#   key_name                    = aws_key_pair.generated.key_name
+#   vpc_security_group_ids      = [aws_security_group.ec2_security_group.id]
+#   subnet_id                   = var.public_subnet_id
+#   iam_instance_profile        = aws_iam_instance_profile.vm_profile.name
+#   user_data                   = file("${path.module}/user_data.sh")
+
+#   tags = {
+#     Name      = var.stack_name
+#     Terraform = true
+#   }
+# }
 
 resource "aws_security_group" "ec2_security_group" {
   name   = "${var.stack_name}-ec2"

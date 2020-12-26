@@ -114,8 +114,8 @@ resource "aws_route_table" "private_routetable" {
 #   nat_gateway_id         = aws_nat_gateway.nat_gateway[count.index]
 # }
 
-# resource "aws_route_table_association" "private_rt_associations" {
-#   count          = local.nb_azs
-#   subnet_id      = aws_subnet.private_subnets.*.id[count.index]
-#   route_table_id = aws_route_table.private_routetable.id
-# }
+resource "aws_route_table_association" "private_rt_associations" {
+  count          = local.nb_azs
+  subnet_id      = aws_subnet.private_subnets.*.id[count.index]
+  route_table_id = aws_route_table.private_routetable.id
+}

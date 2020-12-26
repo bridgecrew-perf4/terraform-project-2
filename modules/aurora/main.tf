@@ -56,10 +56,10 @@ resource "aws_security_group" "db_security_group" {
 
 resource "aws_rds_cluster" "aurora_cluster" {
   cluster_identifier = "keyedin-aurora-cluster"
-  engine          = "aurora-mysql"
-  engine_version  = "5.7"
-  database_name   = "${var.stack_name}_db"
-  master_username = "aurora"
+  engine             = "aurora-mysql"
+  engine_version     = "5.7.mysql_aurora.2.07.2"
+  database_name      = "${var.stack_name}_db"
+  master_username    = "aurora"
   # master_password              = random_string.rds_master_password.result
   master_password              = "keyedin-default-password"
   backup_retention_period      = 14
@@ -67,6 +67,8 @@ resource "aws_rds_cluster" "aurora_cluster" {
   preferred_maintenance_window = "wed:03:00-wed:04:00"
   db_subnet_group_name         = aws_db_subnet_group.aurora_subnet_group.name
   final_snapshot_identifier    = "l${random_string.final_snapshot_id.result}l"
+
+  deletion_protection = true
 
   vpc_security_group_ids = [
     aws_security_group.db_security_group.id
@@ -85,7 +87,11 @@ resource "aws_rds_cluster_instance" "aurora_cluster_instance" {
   db_subnet_group_name = aws_db_subnet_group.aurora_subnet_group.name
   publicly_accessible  = false
   engine               = "aurora-mysql"
-  engine_version       = "5.7"
+  engine_version       = "5.7.mysql_aurora.2.07.2"
+
+  lifecycle {
+    prevent_destroy = false
+  }
 
   tags = {
     Name      = var.stack_name

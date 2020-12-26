@@ -2,6 +2,14 @@ variable "stack_name" {}
 
 data "aws_region" "current" {}
 
+data "aws_autoscaling_group" "keyedin_alb" {
+  name = "${var.stack_name}-ASG"
+}
+
+data "aws_lb_target_group" "keyedin_lb_tg" {
+  name = "${var.stack_name}-lb-tg"
+}
+
 resource "aws_iam_role" "keyed_app_deploy_role" {
   name = "${title(var.stack_name)}CodeDeployServiceRole"
 
@@ -36,7 +44,15 @@ resource "aws_iam_policy" "keyedin_codedeploy_policy" {
         "autoscaling:DescribeAutoScalingGroups",
         "autoscaling:DescribeLifecycleHooks",
         "autoscaling:PutLifecycleHook",
-        "autoscaling:RecordLifecycleActionHeartbeat"
+        "autoscaling:RecordLifecycleActionHeartbeat",
+        "elasticloadbalancing:DescribeLoadBalancers",
+        "elasticloadbalancing:DescribeInstanceHealth",
+        "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+        "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+        "elasticloadbalancing:DescribeTargetGroups",
+        "elasticloadbalancing:DescribeTargetHealth",
+        "elasticloadbalancing:RegisterTargets",
+        "elasticloadbalancing:DeregisterTargets"
       ],
       "Resource": "*"
     },
@@ -72,6 +88,13 @@ resource "aws_iam_role_policy_attachment" "keyedin_codedeploy_policy" {
   policy_arn = aws_iam_policy.keyedin_codedeploy_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "keyedin_codedeploy_alb_policy" {
+  role       = aws_iam_role.keyed_app_deploy_role.name
+  policy_arn = aws_iam_policy.keyedin_codedeploy_policy.arn
+}
+
+
+
 resource "aws_codedeploy_app" "keyedin_app" {
   name             = var.stack_name
   compute_platform = "Server"
@@ -82,7 +105,7 @@ resource "aws_codedeploy_deployment_config" "keyedin_deployment_config" {
 
   minimum_healthy_hosts {
     type  = "HOST_COUNT"
-    value = 0
+    value = 1
   }
 }
 
@@ -96,13 +119,15 @@ resource "aws_codedeploy_deployment_group" "keyedin_deployment_group" {
   service_role_arn       = aws_iam_role.keyed_app_deploy_role.arn
   deployment_config_name = aws_codedeploy_deployment_config.keyedin_deployment_config.id
 
-  ec2_tag_set {
-    ec2_tag_filter {
-      key   = "Name"
-      type  = "KEY_AND_VALUE"
-      value = var.stack_name
-    }
-  }
+  autoscaling_groups = [data.aws_autoscaling_group.keyedin_alb.id]
+
+  # ec2_tag_set {
+  #   ec2_tag_filter {
+  #     key   = "Name"
+  #     type  = "KEY_AND_VALUE"
+  #     value = var.stack_name
+  #   }
+  # }
 
   trigger_configuration {
     trigger_events     = ["DeploymentFailure"]
@@ -113,5 +138,16 @@ resource "aws_codedeploy_deployment_group" "keyedin_deployment_group" {
   auto_rollback_configuration {
     enabled = true
     events  = ["DEPLOYMENT_FAILURE"]
+  }
+
+  deployment_style {
+    deployment_option = "WITH_TRAFFIC_CONTROL"
+    deployment_type   = "IN_PLACE"
+  }
+
+  load_balancer_info {
+    target_group_info {
+      name = data.aws_lb_target_group.keyedin_lb_tg.name
+    }
   }
 }

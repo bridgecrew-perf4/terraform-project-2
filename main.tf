@@ -118,3 +118,22 @@ module "autoscaling" {
   key_name             = module.ec2.ec2_keyname
   alb_target_group_arn = module.elb.alb_target_group_arn
 }
+
+module "dns" {
+  source         = "./modules/dns"
+  stack_name     = var.stack_name
+  stack_domain   = var.stack_domain
+  stack_alb_name = module.elb.elb_name
+}
+
+# provider "mailgun" {
+#   api_key = "${var.mailgun_api_key}"
+# }
+
+
+
+# "module" "mailgun_domain" {
+#   source                = "github.com/samstav/terraform-mailgun-aws"
+#   domain                = "${var.stack_domain}"
+#   mailgun_smtp_password = "${var.mailgun_smtp_password}"
+# }

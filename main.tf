@@ -14,6 +14,13 @@ variable "public_ips" {
   type = map(any)
 }
 
+variable "stack_domain" {}
+
+variable "mailgun_api_key" {}
+
+variable "mailgun_smtp_password" {}
+
+
 
 provider "aws" {
   profile = var.aws_profile

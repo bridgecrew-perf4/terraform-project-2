@@ -6,5 +6,5 @@ variable "stack_domain" {
 variable "stack_name" {}
 
 variable "stack_alb_name" {
-  type = string
+    type = string
 }

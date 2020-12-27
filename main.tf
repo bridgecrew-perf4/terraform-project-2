@@ -71,10 +71,6 @@ module "aurora" {
   vpc_id     = module.vpc.vpc_id
 }
 
-module "codedeploy" {
-  source     = "./modules/codedeploy"
-  stack_name = var.stack_name
-}
 
 module "ecr" {
   source     = "./modules/ecr"
@@ -117,6 +113,15 @@ module "autoscaling" {
   ec2_sg               = module.ec2.ec2_sg
   key_name             = module.ec2.ec2_keyname
   alb_target_group_arn = module.elb.alb_target_group_arn
+}
+
+
+module "codedeploy" {
+  source     = "./modules/codedeploy"
+  stack_name = var.stack_name
+  keyedin_lb_tg_name = module.elb.alb_target_group_name
+  keyedin_alb_id = module.elb.elb_id
+  keyedin_asg = module.autoscaling.autoscaling_gp
 }
 
 module "dns" {

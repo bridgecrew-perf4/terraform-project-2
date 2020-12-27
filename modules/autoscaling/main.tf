@@ -40,16 +40,11 @@ data "aws_lb_target_group" "keyedin_lb_tg" {
   arn = var.alb_target_group_arn
 }
 
-data "aws_security_group" "bastion_sg" {
-  name = "Bastion host of keyedin.app"
-}
-
 
 resource "aws_launch_template" "webservers" {
   image_id               = var.amz_ami
   instance_type          = "t2.medium"
   key_name               = var.key_name
-  # vpc_security_group_ids = [var.ec2_sg, data.aws_security_group.bastion_sg.id]
 
   instance_initiated_shutdown_behavior = "terminate"
 

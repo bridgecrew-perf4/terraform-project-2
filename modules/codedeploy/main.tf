@@ -1,14 +1,12 @@
 variable "stack_name" {}
 
+variable "keyedin_lb_tg_name" {}
+
+variable "keyedin_alb_id" {}
+
+variable "keyedin_asg" {}
+
 data "aws_region" "current" {}
-
-data "aws_autoscaling_group" "keyedin_alb" {
-  name = "${var.stack_name}-ASG"
-}
-
-data "aws_lb_target_group" "keyedin_lb_tg" {
-  name = "${var.stack_name}-lb-tg"
-}
 
 resource "aws_iam_role" "keyed_app_deploy_role" {
   name = "${title(var.stack_name)}CodeDeployServiceRole"
@@ -119,7 +117,7 @@ resource "aws_codedeploy_deployment_group" "keyedin_deployment_group" {
   service_role_arn       = aws_iam_role.keyed_app_deploy_role.arn
   deployment_config_name = aws_codedeploy_deployment_config.keyedin_deployment_config.id
 
-  autoscaling_groups = [data.aws_autoscaling_group.keyedin_alb.id]
+  autoscaling_groups = [var.keyedin_asg]
 
   # ec2_tag_set {
   #   ec2_tag_filter {
@@ -147,7 +145,7 @@ resource "aws_codedeploy_deployment_group" "keyedin_deployment_group" {
 
   load_balancer_info {
     target_group_info {
-      name = data.aws_lb_target_group.keyedin_lb_tg.name
+      name = var.keyedin_lb_tg_name
     }
   }
 }

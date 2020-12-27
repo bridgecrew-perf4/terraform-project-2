@@ -14,6 +14,13 @@ variable "public_ips" {
   type = map(any)
 }
 
+variable "stack_domain" {}
+
+variable "mailgun_api_key" {}
+
+variable "mailgun_smtp_password" {}
+
+
 
 provider "aws" {
   profile = var.aws_profile
@@ -64,10 +71,6 @@ module "aurora" {
   vpc_id     = module.vpc.vpc_id
 }
 
-module "codedeploy" {
-  source     = "./modules/codedeploy"
-  stack_name = var.stack_name
-}
 
 module "ecr" {
   source     = "./modules/ecr"
@@ -111,3 +114,31 @@ module "autoscaling" {
   key_name             = module.ec2.ec2_keyname
   alb_target_group_arn = module.elb.alb_target_group_arn
 }
+
+
+module "codedeploy" {
+  source     = "./modules/codedeploy"
+  stack_name = var.stack_name
+  keyedin_lb_tg_name = module.elb.alb_target_group_name
+  keyedin_alb_id = module.elb.elb_id
+  keyedin_asg = module.autoscaling.autoscaling_gp
+}
+
+module "dns" {
+  source         = "./modules/dns"
+  stack_name     = var.stack_name
+  stack_domain   = var.stack_domain
+  stack_alb_name = module.elb.elb_name
+}
+
+# provider "mailgun" {
+#   api_key = "${var.mailgun_api_key}"
+# }
+
+
+
+# "module" "mailgun_domain" {
+#   source                = "github.com/samstav/terraform-mailgun-aws"
+#   domain                = "${var.stack_domain}"
+#   mailgun_smtp_password = "${var.mailgun_smtp_password}"
+# }

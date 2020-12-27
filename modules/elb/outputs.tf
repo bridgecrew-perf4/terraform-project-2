@@ -13,3 +13,11 @@ output "elb_name" {
 output "alb_target_group_arn" {
   value = aws_lb_target_group.keyedin_lb_tg.arn
 }
+
+output "alb_target_group_id" {
+  value = aws_lb_target_group.keyedin_lb_tg.id
+}
+
+output "alb_target_group_name" {
+  value = aws_lb_target_group.keyedin_lb_tg.name
+}

@@ -65,7 +65,7 @@ resource "aws_rds_cluster" "aurora_cluster" {
   preferred_backup_window      = "01:00-03:00"
   preferred_maintenance_window = "sun:04:00-sun:06:00"
   db_subnet_group_name         = aws_db_subnet_group.aurora_subnet_group.name
-  final_snapshot_identifier    = "${var.stack_name}-snapshot-${formatdate("DD-MMM-YY-hh-mm-ss-ZZZ", timestamp())}"
+  final_snapshot_identifier    = "${var.stack_name}-snapshot-${random_string.final_snapshot_id.result}"
   availability_zones           = data.aws_availability_zones.available.names
 
   deletion_protection = true

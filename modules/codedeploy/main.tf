@@ -119,14 +119,6 @@ resource "aws_codedeploy_deployment_group" "keyedin_deployment_group" {
 
   autoscaling_groups = [var.keyedin_asg]
 
-  # ec2_tag_set {
-  #   ec2_tag_filter {
-  #     key   = "Name"
-  #     type  = "KEY_AND_VALUE"
-  #     value = var.stack_name
-  #   }
-  # }
-
   trigger_configuration {
     trigger_events     = ["DeploymentFailure"]
     trigger_name       = "keyedin APP Deployment"

@@ -46,26 +46,26 @@ data "aws_iam_role" "sns_role" {
 
 locals {
   sns_subscription_email_address_list = ["keyedinapp@gmail.com"]
-  sns_subscription_protocol = "email"
+  sns_subscription_protocol           = "email"
 }
 
 data "template_file" "aws_cf_sns_stack" {
-   template = file("${path.module}/templates/cf_aws_sns_email_stack.json.tpl")
-   vars = {
-     sns_topic_name        = "asg-event-update"
-     sns_display_name      = "Autoscaling Group Event Update Notification"
-     sns_subscription_list = join(",", formatlist("{\"Endpoint\": \"%s\",\"Protocol\": \"%s\"}",
-     local.sns_subscription_email_address_list,
-     local.sns_subscription_protocol))
-   }
- }
+  template = file("${path.module}/templates/cf_aws_sns_email_stack.json.tpl")
+  vars = {
+    sns_topic_name   = "asg-event-update"
+    sns_display_name = "Autoscaling Group Event Update Notification"
+    sns_subscription_list = join(",", formatlist("{\"Endpoint\": \"%s\",\"Protocol\": \"%s\"}",
+      local.sns_subscription_email_address_list,
+    local.sns_subscription_protocol))
+  }
+}
 
- resource "aws_cloudformation_stack" "tf_sns_cloudformation" {
-  name = "snsStack"
+resource "aws_cloudformation_stack" "tf_sns_cloudformation" {
+  name          = "snsStack"
   template_body = data.template_file.aws_cf_sns_stack.rendered
 
   tags = {
-    Name = var.stack_name
+    Name       = var.stack_name
     Terrraform = true
   }
 }
@@ -76,9 +76,9 @@ data "aws_sns_topic" "asg_scaling_notification" {
 
 
 resource "aws_launch_template" "webservers" {
-  image_id               = var.amz_ami
-  instance_type          = "t2.medium"
-  key_name               = var.key_name
+  image_id      = var.amz_ami
+  instance_type = "t2.medium"
+  key_name      = var.key_name
 
   instance_initiated_shutdown_behavior = "terminate"
 
@@ -90,7 +90,7 @@ resource "aws_launch_template" "webservers" {
 
   network_interfaces {
     associate_public_ip_address = true
-    security_groups = [var.ec2_sg]
+    security_groups             = [var.ec2_sg]
   }
 
   tags = {
@@ -176,25 +176,25 @@ resource "aws_autoscaling_policy" "scaling_webservers_by_change" {
 }
 
 resource "aws_autoscaling_lifecycle_hook" "asg_notification_hooks_instance_terminate" {
-  name = "asg-hook-instance-terminating"
+  name                   = "asg-hook-instance-terminating"
   autoscaling_group_name = aws_autoscaling_group.webserver.name
-  default_result = "CONTINUE"
-  heartbeat_timeout = 2000
-  lifecycle_transition = "autoscaling:EC2_INSTANCE_TERMINATING"
+  default_result         = "CONTINUE"
+  heartbeat_timeout      = 2000
+  lifecycle_transition   = "autoscaling:EC2_INSTANCE_TERMINATING"
 
   notification_target_arn = data.aws_sns_topic.asg_scaling_notification.arn
-  role_arn = data.aws_iam_role.sns_role.arn
+  role_arn                = data.aws_iam_role.sns_role.arn
 }
 
 resource "aws_autoscaling_lifecycle_hook" "asg_notification_hooks_instance_launching" {
-  name = "asg-hook-instance-launching"
+  name                   = "asg-hook-instance-launching"
   autoscaling_group_name = aws_autoscaling_group.webserver.name
-  default_result = "CONTINUE"
-  heartbeat_timeout = 2000
-  lifecycle_transition = "autoscaling:EC2_INSTANCE_LAUNCHING"
+  default_result         = "CONTINUE"
+  heartbeat_timeout      = 2000
+  lifecycle_transition   = "autoscaling:EC2_INSTANCE_LAUNCHING"
 
   notification_target_arn = data.aws_sns_topic.asg_scaling_notification.arn
-  role_arn = data.aws_iam_role.sns_role.arn
+  role_arn                = data.aws_iam_role.sns_role.arn
 }
 
 

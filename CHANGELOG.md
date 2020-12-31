@@ -4,3 +4,6 @@
 
 - Added SNS Notification to Autoscaling group in order to get email updates when instances are added or taken out
 
+## 0.2.0 - 31st December, 2020
+
+- Added project documentation 

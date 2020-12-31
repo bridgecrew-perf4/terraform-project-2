@@ -95,7 +95,7 @@ module "bastion" {
   subnet_id     = module.vpc.public_subnet_ids[1]
   vpc_id        = module.vpc.vpc_id
   allowed_hosts = module.vpc.vpc_cidr_block
-  key_name = module.ec2.ec2_keyname
+  key_name      = module.ec2.ec2_keyname
 }
 
 module "cloudwatch" {
@@ -117,11 +117,11 @@ module "autoscaling" {
 
 
 module "codedeploy" {
-  source     = "./modules/codedeploy"
-  stack_name = var.stack_name
+  source             = "./modules/codedeploy"
+  stack_name         = var.stack_name
   keyedin_lb_tg_name = module.elb.alb_target_group_name
-  keyedin_alb_id = module.elb.elb_id
-  keyedin_asg = module.autoscaling.autoscaling_gp
+  keyedin_alb_id     = module.elb.elb_id
+  keyedin_asg        = module.autoscaling.autoscaling_gp
 }
 
 module "dns" {
